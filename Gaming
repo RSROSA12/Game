@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rafael tedius game</title>
+    <style>
+        #container {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Desafio Matemático do Rafael com Tédio</h1>
+        <p>Se acertar, ganha uma curiosidade de medicina. Se errar, de astronomia. Clique em iniciar, se quiser iniciar. Fica a seu critério.</p>
+        <button id="startButton" onclick="startGame()">Iniciar</button>
+        <p id="question"></p>
+        <input type="text" id="answer" placeholder="Sua resposta">
+        <button onclick="checkAnswer()">Verificar Resposta</button>
+        <button onclick="showCorrectAnswer()">Mostrar Resposta</button>
+    </div>
+
+    <script>
+        let level = 1;
+        let score = 0;
+        let correctAnswersCount = 0;
+
+        const medicineFacts = [
+            "A saliva contém enzimas que ajudam na digestão dos alimentos.",
+            "O coração humano bate cerca de 100.000 vezes por dia.",
+            "O olho humano é capaz de distinguir milhões de cores diferentes.",
+            "O cérebro humano é composto por cerca de 86 bilhões de neurônios.",
+            "Apenas cerca de 20% do oxigênio que respiramos é usado pelo corpo humano.",
+            "O sistema nervoso controla todas as funções do corpo, incluindo movimento e pensamento.",
+            "O sangue humano é composto por glóbulos vermelhos, glóbulos brancos e plaquetas.",
+            "A aspirina é um medicamento comum usado para aliviar a dor e reduzir a febre.",
+            "A vacinação é uma das formas mais eficazes de prevenir doenças infecciosas.",
+            "A anatomia humana é o estudo da estrutura do corpo humano.",
+            "O câncer é uma doença caracterizada pelo crescimento descontrolado de células no corpo.",
+            "Apenas os seres humanos têm impressões digitais únicas.",
+            "O sistema imunológico protege o corpo contra infecções e doenças.",
+            "A insulina é uma hormona que regula os níveis de açúcar no sangue.",
+            "A pele é o maior órgão do corpo humano.",
+            "O sono é importante para a saúde mental e física.",
+            "A água é essencial para a sobrevivência humana.",
+            "A cirurgia é uma opção de tratamento para muitas condições médicas.",
+            "A temperatura normal do corpo humano é cerca de 37 graus Celsius."
+        ];
+
+        const astronomyFacts = [
+            "O Sol é uma estrela que está a cerca de 149,6 milhões de quilômetros da Terra.",
+            "A Via Láctea, nossa galáxia, tem bilhões de estrelas e planetas.",
+            "Os buracos negros são regiões do espaço com uma gravidade tão forte que nada pode escapar deles.",
+            "A luz das estrelas que vemos no céu noturno muitas vezes é milhares de anos luz de distância.",
+            "Existem mais estrelas no universo conhecido do que grãos de areia na Terra.",
+            "Os cometas são corpos celestes compostos principalmente de gelo, poeira e rocha.",
+            "A lua é o único satélite natural da Terra.",
+            "Júpiter é o maior planeta do nosso sistema solar.",
+            "A Estação Espacial Internacional (EEI) é um laboratório espacial em órbita ao redor da Terra.",
+            "Um ano em Marte é cerca de 687 dias na Terra.",
+            "O telescópio Hubble tem fornecido imagens incríveis do espaço profundo.",
+            "Os asteroides são pequenos corpos rochosos que orbitam o sol.",
+            "Plutão já foi considerado o nono planeta do sistema solar, mas agora é classificado como um planeta anão.",
+            "O telescópio espacial Kepler descobriu milhares de exoplanetas fora do nosso sistema solar.",
+            "O universo está em constante expansão, o que significa que está se tornando maior ao longo do tempo.",
+            "A nebulosa de Orion é uma das regiões de formação stellars mais famosas do espaço.",
+            "A gravidade é a força que mantém os planetas em órbita ao redor do sol.",
+            "Os buracos de minhoca são teorias hipotéticas sobre viagens interestelares.",
+            "A lua de Saturno, Encélado, tem gêiseres que lançam água no espaço.",
+            "Astrônomos usam telescópios para estudar objetos distantes no universo."
+        ];
+
+        const jokes = [
+            "Por que o esqueleto não brigou com ninguém? Porque ele não tem estômago para isso!",
+            "O que o zero disse para o oito? 'Uau, que cinto bonito!'",
+            "Qual é o doce que tira foto? O Kodakalate!",
+            "O que é, o que é? Tem dentes, mas não morde. Tem água, mas não bebe. O que é?",
+            "Por que o livro de matemática ficou deprimido? Porque tinha demasiados problemas.",
+            "O que é que o tomate foi fazer no banco? Tirar extrato.",
+            "Por que o peixe vive no mar? Porque no hotel não cabia.",
+            "O que o elevador disse para o outro elevador? 'Estou contigo até o último andar.'",
+            "O que é um pontinho amarelo no alto do prédio? Uma pastilha elêvator!",
+            "Qual é o café mais perigoso do mundo? O ex-preso!",
+            "Qual é o fim da picada? Quando o mosquito vai embora.",
+            "O que o advogado do frango foi fazer na delegacia? Foi soltar a franga!",
+            "Por que o pepino nunca fica chateado? Porque ele é todo 'a verdeque'.",
+            "O que o lápis falou para a borracha? 'Você é um borrachão!'",
+            "Qual é o lugar mais silencioso do mundo? A página 2 do Google.",
+            "Por que a vaca foi para o espaço? Para se encontrar com o vácuo.",
+            "O que o computador foi fazer no bar? Foi dar uma 'olhadinha'!",
+            "Qual é o contrário de volátil? Vem cá sobrinho!",
+            "5 questões seguidas, já pode tirar um mestrado em história de Tuvalu",
+            "Cê acertou 5 questões seguidas mas to sem saco pra escrever piadas"
+        ];
+
+        let usedMedicineFacts = [];
+        let usedAstronomyFacts = [];
+        let jokeIndex = 0;
+
+        function getRandomUniqueFact(array, usedArray) {
+            if (usedArray.length === array.length) {
+                usedArray.length = 0; // Reset o array de curiosidades usadas quando todas foram mostradas
+            }
+
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * array.length);
+            } while (usedArray.includes(randomIndex));
+
+            usedArray.push(randomIndex);
+            return array[randomIndex];
+        }
+
+        function startGame() {
+            document.getElementById('startButton').disabled = true;
+            generateQuestion();
+        }
+
+        function generateQuestion() {
+            let num1, num2, operator, questionText;
+
+            do {
+                num1 = Math.floor(Math.random() * (level * 10));
+                num2 = Math.floor(Math.random() * (level * 10));
+                operator = ['+', '-', '*', '/'][Math.floor(Math.random() * 4)];
+                questionText = `${num1} ${operator} ${num2}`;
+            } while (operator === '/' && num2 === 0);
+
+            document.getElementById('question').textContent = questionText;
+        }
+
+        function showCorrectAnswer() {
+            const [num1, operator, num2] = document.getElementById('question').textContent.split(' ');
+            const correctAnswer = eval(`${num1} ${operator} ${num2}`);
+            alert(`A resposta correta é: ${correctAnswer.toFixed(2)}`);
+        }
+
+        function showRandomMedicineFact() {
+            const randomFact = getRandomUniqueFact(medicineFacts, usedMedicineFacts);
+            alert(randomFact);
+        }
+
+        function showRandomAstronomyFact() {
+            const randomFact = getRandomUniqueFact(astronomyFacts, usedAstronomyFacts);
+            alert(randomFact);
+        }
+
+        function showJoke() {
+            if (correctAnswersCount % 5 === 0) {
+                if (jokeIndex >= jokes.length) {
+                    jokeIndex = 0;
+                }
+                const joke = jokes[jokeIndex];
+                alert(joke);
+                jokeIndex++;
+            }
+        }
+
+        function checkAnswer() {
+            const userAnswer = parseFloat(document.getElementById('answer').value);
+            const [num1, operator, num2] = document.getElementById('question').textContent.split(' ');
+            const correctAnswer = eval(`${num1} ${operator} ${num2}`);
+            
+            if (userAnswer === correctAnswer) {
+                score++;
+                level++;
+                correctAnswersCount++;
+
+                if (level % 10 === 0) {
+                    alert("Parabéns! Você chegou a um nível terminado em 0, Rafael teria feito melhor, mas você se esforçou. Aqui está um problema matemático bônus:\n\nQuantos Rafaeis seriam necessários para construir um mundo perfeito? Ahhh, essa é para uma criança de 6 anos, a resposta é óbvia, 8 trilhões 705 milhões 444 mil e 600 Rafaeis seriam suficientes para um mundo perfeito.");
+                }
+
+                alert(`Resposta correta! Pontuação: ${score}, Nível: ${level}`);
+                showRandomMedicineFact();
+                generateQuestion();
+                
+                showJoke(); // Mostrar piada a cada 5 respostas corretas
+            } else {
+                alert('Rafael desaprova seu erro. Tente novamente.');
+                showRandomAstronomyFact();
+            }
+        }
+    </script>
+</body>
+</html>
